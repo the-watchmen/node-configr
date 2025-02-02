@@ -1,0 +1,9 @@
+extra:
+  aList:
+    - foo
+    - bar
+  aBoolean: true
+  anObject:
+    foo: 'foo'
+    bar: 'bar'
+  aNumber: 42
