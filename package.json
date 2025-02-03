@@ -15,11 +15,11 @@
   "dependencies": {
     "@watchmen/debug": "^2.0.7",
     "@watchmen/helpr": "^3.0.0",
+    "config": "^3.3.12",
     "lodash": "4.17.21",
     "yaml": "^2.7.0"
   },
   "devDependencies": {
-    "@watchmen/test-helpr": "1.0.4",
     "ava": "6.2.0",
     "prettier": "3.4.2",
     "xo": "0.60.0"
