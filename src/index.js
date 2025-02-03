@@ -25,10 +25,14 @@ function initConfig() {
   return config
 }
 
-function getConfig({path, dflt = null}) {
-  const toks = path.split('.')
-  const env = _.snakeCase(toks.join('_')).toUpperCase()
-  const _path = toks.join('.')
-  dbg('env=%s, path=%s, dflt=%s', env, _path, dflt)
-  return process.env[env] || _.get(_config, _path) || dflt
+function getConfig({path, dflt = null} = {}) {
+  if (path) {
+    const toks = path.split('.')
+    const env = _.snakeCase(toks.join('_')).toUpperCase()
+    const _path = toks.join('.')
+    dbg('env=%s, path=%s, dflt=%s', env, _path, dflt)
+    return process.env[env] || _.get(_config, _path) || dflt
+  }
+
+  return _config
 }

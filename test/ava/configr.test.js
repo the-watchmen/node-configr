@@ -45,3 +45,18 @@ test('yml', (t) => {
   t.like(getConfig({path: 'extra.aList'}), ['foo', 'bar'])
   delete process.env.CONFIGR_YAML
 })
+
+test('all', (t) => {
+  const all = getConfig()
+  dbg('all=%s', pretty(all))
+  t.is(getConfig(), config)
+})
+
+test('all-yaml', (t) => {
+  process.env.CONFIGR_YAML = `${import.meta.dirname}/configr.test.yml`
+  initConfig()
+  const all = getConfig()
+  dbg('all=%s', pretty(all))
+  t.is(getConfig(), config)
+  delete process.env.CONFIGR_YAML
+})
