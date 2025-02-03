@@ -6,11 +6,11 @@ import {parse} from 'yaml'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
 
-export {getConfig, initConfig}
+export {getConfig, initConfig, configr}
 
 const dbg = debug(import.meta.url)
 
-const _config = initConfig()
+const configr = initConfig()
 
 function initConfig() {
   const yaml = process.env.CONFIGR_YAML
@@ -31,8 +31,8 @@ function getConfig({path, dflt = null} = {}) {
     const env = _.snakeCase(toks.join('_')).toUpperCase()
     const _path = toks.join('.')
     dbg('env=%s, path=%s, dflt=%s', env, _path, dflt)
-    return process.env[env] || _.get(_config, _path) || dflt
+    return process.env[env] || _.get(configr, _path) || dflt
   }
 
-  return _config
+  return configr
 }

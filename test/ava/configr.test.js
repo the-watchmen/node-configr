@@ -2,7 +2,7 @@ import test from 'ava'
 import debug from '@watchmen/debug'
 import config from 'config'
 import {pretty} from '@watchmen/helpr'
-import {getConfig, initConfig} from '../../src/index.js'
+import {getConfig, initConfig, configr} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
 
@@ -59,4 +59,8 @@ test('all-yaml', (t) => {
   dbg('all=%s', pretty(all))
   t.is(getConfig(), config)
   delete process.env.CONFIGR_YAML
+})
+
+test('configr', (t) => {
+  t.is(configr, config)
 })
