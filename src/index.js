@@ -10,29 +10,57 @@ export {getConfig, initConfig, configr}
 
 const dbg = debug(import.meta.url)
 
+const format = {
+  yaml: 'yaml',
+  yml: 'yml',
+  json: 'json',
+}
+
 const configr = initConfig()
 
 function initConfig() {
-  const yaml = process.env.CONFIGR_YAML
-  if (yaml) {
-    dbg('yaml=%o', yaml)
-    const _yaml = fs.readFileSync(yaml, 'utf8')
-    const __yaml = parse(_yaml)
-    dbg('read yaml=%s', pretty(__yaml))
-    return _.merge(config, __yaml)
+  let input = getConfig({path: 'configr.input', config})
+  if (input) {
+    let _format = getConfig({path: 'configr.format', config})
+    const isFile = !_format
+    if (isFile) {
+      const file = input
+      _format = file.split('.').at(-1)
+      if (_format) {
+        dbg('determined format=%s from file=%s', _format, file)
+      } else {
+        throw new Error(`unable to determine format from file=${file}`)
+      }
+
+      input = fs.readFileSync(input, 'utf8')
+    }
+
+    if ([format.yaml, format.yml].includes(_format)) {
+      input = parse(input)
+      dbg('read yaml=%s', pretty(input))
+    } else if (_format === format.json) {
+      input = JSON.parse(input)
+      dbg('read json=%s', pretty(input))
+    } else {
+      // maybe support properties format as enhancement
+      //
+      throw new Error(`unsupported input format=${_format}`)
+    }
+
+    return _.merge(config, input)
   }
 
   return config
 }
 
-function getConfig({path, dflt = null} = {}) {
+function getConfig({path, dflt = null, config = configr} = {}) {
   if (path) {
     const toks = path.split('.')
     const env = _.snakeCase(toks.join('_')).toUpperCase()
     const _path = toks.join('.')
     dbg('env=%s, path=%s, dflt=%s', env, _path, dflt)
-    return process.env[env] || _.get(configr, _path) || dflt
+    return process.env[env] || _.get(config, _path) || dflt
   }
 
-  return configr
+  return config
 }

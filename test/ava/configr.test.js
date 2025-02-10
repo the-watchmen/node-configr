@@ -40,10 +40,28 @@ test('dflt', (t) => {
 })
 
 test('yml', (t) => {
-  process.env.CONFIGR_YAML = `${import.meta.dirname}/configr.test.yml`
+  process.env.CONFIGR_INPUT = `${import.meta.dirname}/configr.test.yml`
   initConfig()
   t.like(getConfig({path: 'extra.aList'}), ['foo', 'bar'])
-  delete process.env.CONFIGR_YAML
+  delete process.env.CONFIGR_INPUT
+})
+
+test('yaml-data', (t) => {
+  process.env.CONFIGR_INPUT = 'foo: bar'
+  process.env.CONFIGR_FORMAT = 'yaml'
+  initConfig()
+  t.is(getConfig({path: 'foo'}), 'bar')
+  delete process.env.CONFIGR_INPUT
+  delete process.env.CONFIGR_FORMAT
+})
+
+test('json-data', (t) => {
+  process.env.CONFIGR_INPUT = '{"foo": {"bar": "baz"}}'
+  process.env.CONFIGR_FORMAT = 'json'
+  initConfig()
+  t.is(getConfig({path: 'foo.bar'}), 'baz')
+  delete process.env.CONFIGR_INPUT
+  delete process.env.CONFIGR_FORMAT
 })
 
 test('all', (t) => {
