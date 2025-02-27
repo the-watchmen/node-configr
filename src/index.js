@@ -37,20 +37,22 @@ function initConfig() {
 
     if ([format.yaml, format.yml].includes(_format)) {
       input = parse(input)
-      dbg('read yaml=%s', pretty(input))
+      dbg('read yaml\n:%s', pretty(input))
     } else if (_format === format.json) {
       input = JSON.parse(input)
-      dbg('read json=%s', pretty(input))
+      dbg('read json:\n%s', pretty(input))
     } else {
       // maybe support properties format as enhancement
       //
       throw new Error(`unsupported input format=${_format}`)
     }
-
-    return _.merge(config, input)
   }
 
-  return config
+  const _config = input ? _.merge(config, input) : config
+
+  dbg('prevailing config:\n%s', pretty(_config))
+
+  return _config
 }
 
 function getConfig({path, dflt = null, config = configr} = {}) {
