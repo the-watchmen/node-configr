@@ -1,0 +1,31 @@
+{
+  "name": "@watchmen/configr",
+  "version": "1.1.1",
+  "description": "config helper",
+  "exports": "./src/index.js",
+  "repository": "the-watchmen/node-configr",
+  "type": "module",
+  "scripts": {
+    "pretest": "xo",
+    "ava": "NODE_ENV=test DEBUG=dbg:* ava",
+    "test": "npm run ava"
+  },
+  "author": "tony kerz",
+  "license": "ISC",
+  "dependencies": {
+    "@watchmen/debug": "^2.0.7",
+    "@watchmen/helpr": "^3.0.0",
+    "config": "^3.3.12",
+    "fs-extra": "^11.3.0",
+    "lodash": "4.17.21",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "ava": "6.2.0",
+    "prettier": "3.4.2",
+    "xo": "0.60.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
