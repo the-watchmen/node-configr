@@ -14,12 +14,18 @@ const dbg = debug(import.meta.url)
 test('basic', async (t) => {
   const sources = [
     {
-      source: 'https://github.com/the-watchmen/node-configr/test/ava/configr.https.yaml',
+      source:
+        'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.https.yaml',
       token: 's3cret',
     },
     {source: 'test/ava/configr.yaml', modifiers: ['test']},
   ]
   const configr = await Configr.create({sources})
-  dbg('config=%s', pretty(configr))
-  t.pass()
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {b: {c: 123}},
+    isTrue: true,
+    base: {foo: 'bar', https: true},
+    extra: {aList: ['foo', 'bar'], aBoolean: true, anObject: {foo: 'foo', bar: 'bar'}, aNumber: 42},
+  })
 })

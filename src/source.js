@@ -16,13 +16,14 @@ export class Source {
       modified,
       async (memo, source) => {
         memo = await memo
-        dbg('create: reduce: source=%o', source)
         const o = await getObjectFromSource({source, headers, mustExist: _.isEmpty(memo)})
+        dbg('create: reduce: source=%o, config=%o', source, o)
+
         return _.merge(memo, o)
       },
       {},
     )
-    dbg('config=%o', config)
+    dbg('create: source=%o, config=%o', source, config)
     return new Source({source, modifiers, config})
   }
 

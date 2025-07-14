@@ -77,7 +77,7 @@ async function getHttpData({url, headers, mustExist}) {
 }
 
 async function getFileData({path, mustExist}) {
-  dbg('get-file-data: path=%s, must-exist=%s', path, mustExist)
+  // dbg('get-file-data: path=%s, must-exist=%s', path, mustExist)
   try {
     return await fs.readFile(path, 'utf8')
   } catch (error) {
@@ -104,7 +104,7 @@ async function getDataFromSource({source, headers, mustExist}) {
 async function getObjectFromSource({source, headers, mustExist}) {
   const data = await getDataFromSource({source, headers, mustExist})
   if (data) {
-    dbg('get-object-from-source: source=%s found, processing...', source)
+    // dbg('get-object-from-source: source=%s found, processing...', source)
 
     const ext = getExtFromSource({source})
     return getObjectFromData({data, type: ext})
