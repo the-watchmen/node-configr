@@ -14,6 +14,7 @@ export {
   getObjectFromSource,
   decomposeSource,
   getModifiedSources,
+  getEnv,
 }
 
 const format = {
@@ -151,3 +152,26 @@ function getModifiedSources({source, modifiers}) {
 // function ensureUrl({source}) {
 //   return urlRe.test(source) ? source : pathToFileURL(source).toString()
 // }
+
+function getEnv({prefix = 'configr_', separator = '__'} = {}) {
+  // const env = _.filter(_.entries(process.env), (entry) => {
+  //   return entry.toLowerCase().startsWith(prefix)
+  // })
+  // dbg('env=%o', env)
+  return _.reduce(
+    _.entries(process.env),
+    (memo, [key, val]) => {
+      if (key.toLowerCase().startsWith(prefix)) {
+        // dbg('get-env: env=%s', key)
+        let _key = key.slice(prefix.length)
+        const toks = _key.split(separator)
+        _key = toks.join('.')
+        dbg('get-env: key=%s, _key=%s', key, _key)
+        _.set(memo, _key, val)
+      }
+
+      return memo
+    },
+    {},
+  )
+}

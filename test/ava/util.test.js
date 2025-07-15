@@ -7,6 +7,7 @@ import {
   decomposeSource,
   getModifiedSources,
   getExtFromSource,
+  getEnv,
 } from '../../src/util.js'
 
 const dbg = debug(import.meta.url)
@@ -133,4 +134,12 @@ test('get-ext-file', (t) => {
   const source = 'path/to/values.yaml'
   const ext = getExtFromSource({source})
   t.is(ext, 'yaml')
+})
+
+test('get-env', (t) => {
+  // eslint-disable-next-line dot-notation
+  process.env['configr_foo__bar'] = 'baz'
+  const env = getEnv()
+  dbg('env=%o', env)
+  t.deepEqual(env, {foo: {bar: 'baz'}})
 })
