@@ -10,9 +10,11 @@ export class Configr {
   #sources
   #config
 
-  static async create({sources = [], isEnvAugment = true}) {
+  static async create({sources = [], isEnvAugment = true} = {}) {
+    const _sources = JSON.parse(process.env.CONFIGR_SOURCES_JSON || '[]')
+    dbg('create: sources from env=%o', _sources)
     sources = await Promise.all(
-      _.map(sources, (source) => {
+      _.map([..._sources, ...sources], (source) => {
         return Source.create(_.isString(source) ? {source} : source)
       }),
     )

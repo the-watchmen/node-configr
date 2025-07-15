@@ -5,11 +5,18 @@ import {Configr} from '../../src/configr.js'
 
 const dbg = debug(import.meta.url)
 
-// test('bare', (t) => {
-//   const configr = new Configr()
-//   dbg('config=%s', pretty(configr))
-//   t.pass()
-// })
+test('bare', async (t) => {
+  const configr = await Configr.create()
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+  })
+})
 
 test('basic', async (t) => {
   const sources = [
@@ -28,4 +35,20 @@ test('basic', async (t) => {
     base: {foo: 'bar', https: true},
     extra: {aList: ['foo', 'bar'], aBoolean: true, anObject: {foo: 'foo', bar: 'bar'}, aNumber: 42},
   })
+})
+
+test('env', async (t) => {
+  process.env.CONFIGR_SOURCES_JSON = JSON.stringify([
+    'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.https.yaml',
+    {source: 'test/ava/configr.yaml', modifiers: ['test']},
+  ])
+  const configr = await Configr.create()
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {b: {c: 123}},
+    isTrue: true,
+    base: {foo: 'bar', https: true},
+    extra: {aList: ['foo', 'bar'], aBoolean: true, anObject: {foo: 'foo', bar: 'bar'}, aNumber: 42},
+  })
+  delete process.env.CONFIGR_SOURCES_JSON
 })
