@@ -1,6 +1,6 @@
 {
   "name": "@watchmen/configr",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "config helper",
   "exports": "./src/index.js",
   "repository": "the-watchmen/node-configr",
