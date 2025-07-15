@@ -161,7 +161,7 @@ function getEnv({prefix = 'configr_', separator = '__'} = {}) {
   return _.reduce(
     _.entries(process.env),
     (memo, [key, val]) => {
-      if (key.toLowerCase().startsWith(prefix)) {
+      if (key.startsWith(prefix)) {
         // dbg('get-env: env=%s', key)
         let _key = key.slice(prefix.length)
         const toks = _key.split(separator)

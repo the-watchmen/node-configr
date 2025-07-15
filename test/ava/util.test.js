@@ -143,3 +143,11 @@ test('get-env', (t) => {
   dbg('env=%o', env)
   t.deepEqual(env, {foo: {bar: 'baz'}})
 })
+
+test('get-env-up', (t) => {
+  // eslint-disable-next-line dot-notation
+  process.env['CONFIGR_FOO__BAR'] = 'baz'
+  const env = getEnv()
+  dbg('env=%o', env)
+  t.deepEqual(env, {foo: {bar: 'baz'}})
+})
