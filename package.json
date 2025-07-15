@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "pretest": "xo",
-    "ava": "NODE_ENV=test DEBUG=dbg:* ava",
+    "ava": "NODE_ENV=test DEBUG=dbg:* ava -s",
     "test": "npm run ava"
   },
   "author": "tony kerz",

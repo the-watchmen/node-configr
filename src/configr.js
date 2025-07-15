@@ -10,7 +10,7 @@ export class Configr {
   #sources
   #config
 
-  static async create({sources = [], isEnvAugment = true} = {}) {
+  static async create({sources = []} = {}) {
     const _sources = JSON.parse(process.env.CONFIGR_SOURCES_JSON || '[]')
     dbg('create: sources from env=%o', _sources)
     sources = await Promise.all(
@@ -18,10 +18,10 @@ export class Configr {
         return Source.create(_.isString(source) ? {source} : source)
       }),
     )
-    return new Configr({sources, isEnvAugment})
+    return new Configr({sources})
   }
 
-  constructor({sources, isEnvAugment}) {
+  constructor({sources}) {
     this.#sources = sources
     this.#config = _.reduce(
       this.#sources,
@@ -33,9 +33,12 @@ export class Configr {
       config.util.toObject(config),
     )
 
-    if (isEnvAugment) {
-      this.#config = _.merge(this.#config, getEnv())
+    const _config = JSON.parse(process.env.CONFIGR_CONFIG_JSON || '{}')
+    if (!_.isEmpty(_config)) {
+      dbg('ctor: obtained config=%o from configr-config-json', _config)
     }
+
+    this.#config = _.merge(this.#config, {..._config, ...getEnv()})
   }
 
   get config() {

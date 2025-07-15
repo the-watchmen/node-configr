@@ -1,7 +1,7 @@
 import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
-import {Configr} from '../../src/configr.js'
+import {Configr, getConfig} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
 
@@ -51,4 +51,29 @@ test('env', async (t) => {
     extra: {aList: ['foo', 'bar'], aBoolean: true, anObject: {foo: 'foo', bar: 'bar'}, aNumber: 42},
   })
   delete process.env.CONFIGR_SOURCES_JSON
+})
+
+test('json', async (t) => {
+  process.env.CONFIGR_CONFIG_JSON = JSON.stringify({foo: {bar: 'baz'}})
+  const configr = await Configr.create()
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    foo: {bar: 'baz'},
+    a: {b: {c: 123}},
+    isTrue: true,
+  })
+  delete process.env.CONFIGR_CONFIG_JSON
+})
+
+test('get', async (t) => {
+  const config = await getConfig()
+  dbg('config=%s', pretty(config))
+  t.deepEqual(config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+  })
 })
