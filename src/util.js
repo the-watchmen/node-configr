@@ -147,7 +147,7 @@ function getModifiedSources({source, modifiers}) {
   ]
 }
 
-function getEnv({prefix = 'configr_', separator = '__'} = {}) {
+function getEnv({prefix = 'configr_', separator = '_'} = {}) {
   return _.reduce(
     _.entries(process.env),
     (memo, [key, val]) => {

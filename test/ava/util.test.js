@@ -138,7 +138,7 @@ test('get-ext-file', (t) => {
 
 test('get-env', (t) => {
   // eslint-disable-next-line dot-notation
-  process.env['configr_foo__bar'] = 'baz'
+  process.env['configr_foo_bar'] = 'baz'
   const env = getEnv()
   dbg('env=%o', env)
   t.deepEqual(env, {foo: {bar: 'baz'}})
