@@ -2,7 +2,10 @@
   "name": "@watchmen/configr",
   "version": "2.0.5",
   "description": "config helper",
-  "exports": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./env": "./src/env.js"
+  },
   "repository": "the-watchmen/node-configr",
   "type": "module",
   "scripts": {
