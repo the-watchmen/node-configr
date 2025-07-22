@@ -11,24 +11,25 @@ const dbg = debug(import.meta.url)
 let config
 let promise
 
-async function getConfig({caller} = {}) {
+async function getConfig({caller, bustCache} = {}) {
   let path
   if (caller) {
     path = getRelativeToCwd(caller)
   }
 
-  if (config) {
+  if (config && !bustCache) {
     if (path) dbg('cache-hit: caller=%s', path)
     return config
   }
 
-  if (promise) {
+  if (promise && !bustCache) {
     if (path) dbg('promise: caller=%s', path)
     return promise
   }
 
   promise = (async () => {
     if (path) dbg('creating: caller=%s', path)
+    if (bustCache) dbg('busting-cache per request')
 
     const configr = await Configr.create()
     config = configr.config

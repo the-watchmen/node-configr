@@ -4,6 +4,7 @@ import {pretty} from '@watchmen/helpr'
 import {Configr, getConfig, getConfigValue} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
+const caller = import.meta.url
 
 test('bare', async (t) => {
   const configr = await Configr.create()
@@ -66,7 +67,7 @@ test('json', async (t) => {
 })
 
 test('get', async (t) => {
-  const config = await getConfig({caller: import.meta.url})
+  const config = await getConfig({caller})
   dbg('config=%s', pretty(config))
   t.deepEqual(config, {
     a: {
@@ -78,9 +79,9 @@ test('get', async (t) => {
   })
 })
 test('get-multi', async (t) => {
-  await getConfig({caller: import.meta.url})
-  await getConfig({caller: import.meta.url})
-  await getConfig({caller: import.meta.url})
+  await getConfig({caller})
+  await getConfig({caller})
+  await getConfig({caller})
 
   t.pass()
 })
@@ -100,4 +101,24 @@ test('get-val-dflt', async (t) => {
   t.is(config, undefined)
   config = await getConfigValue({path: 'nope.nah.no', dflt: 'yup'})
   t.is(config, 'yup')
+})
+
+test('push-env', async (t) => {
+  const env = 'configr_a_b_c_d'
+  const val = 'ack'
+  process.env[env] = val
+  const configr = await Configr.create()
+  dbg('config=%s', pretty(configr.config))
+  t.is(configr.config.a.b.c.d, val)
+  delete process.env[env]
+})
+
+test('push-env-get', async (t) => {
+  const env = 'configr_a_b_c_d'
+  const val = 'ack'
+  process.env[env] = val
+  const config = await getConfig({caller, bustCache: true})
+  dbg('config=%s', pretty(config))
+  t.is(config.a.b.c.d, val)
+  delete process.env[env]
 })
