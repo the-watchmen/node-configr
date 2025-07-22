@@ -1,7 +1,7 @@
 import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
-import {Configr, getConfig} from '../../src/index.js'
+import {Configr, getConfig, getConfigValue} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
 
@@ -66,7 +66,7 @@ test('json', async (t) => {
 })
 
 test('get', async (t) => {
-  const config = await getConfig()
+  const config = await getConfig({caller: import.meta.url})
   dbg('config=%s', pretty(config))
   t.deepEqual(config, {
     a: {
@@ -76,4 +76,28 @@ test('get', async (t) => {
     },
     isTrue: true,
   })
+})
+test('get-multi', async (t) => {
+  await getConfig({caller: import.meta.url})
+  await getConfig({caller: import.meta.url})
+  await getConfig({caller: import.meta.url})
+
+  t.pass()
+})
+
+test('get-val-env', async (t) => {
+  const val = await getConfigValue({path: 'home'})
+  t.true(val.startsWith('/'))
+})
+
+test('get-val-config', async (t) => {
+  const config = await getConfigValue({path: 'a.b.c'})
+  t.is(config, 123)
+})
+
+test('get-val-dflt', async (t) => {
+  let config = await getConfigValue({path: 'nope.nah.no'})
+  t.is(config, undefined)
+  config = await getConfigValue({path: 'nope.nah.no', dflt: 'yup'})
+  t.is(config, 'yup')
 })

@@ -15,6 +15,7 @@ export {
   decomposeSource,
   getModifiedSources,
   getEnv,
+  getRelativeToCwd,
 }
 
 const format = {
@@ -43,6 +44,10 @@ function getRelativePath({file, dir}) {
 
 function isInParent({file, dir}) {
   return getRelativePath({file, dir})
+}
+
+function getRelativeToCwd(url) {
+  return path.relative(process.cwd(), fileURLToPath(url))
 }
 
 // function getHeaders({url}) {
