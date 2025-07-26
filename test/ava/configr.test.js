@@ -122,3 +122,19 @@ test('push-env-get', async (t) => {
   t.is(config.a.b.c.d, val)
   delete process.env[env]
 })
+
+test('get-import', async (t) => {
+  process.env.CONFIGR_SOURCES_IMPORT = '../test/ava/_get-sources.js'
+  const config = await getConfig({caller, bustCache: true})
+  dbg('config=%s', pretty(config))
+  t.deepEqual(config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+    dynamic: 'yep',
+  })
+  delete process.env.CONFIGR_SOURCES_IMPORT
+})

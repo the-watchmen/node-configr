@@ -1,8 +1,14 @@
 import test from 'ava'
-// import debug from '@watchmen/debug'
-import {getEnv, getEnvAsBoolean, getEnvAsArray, getEnvAsNumber} from '../../src/env.js'
+import debug from '@watchmen/debug'
+import {
+  getEnv,
+  getEnvAsBoolean,
+  getEnvAsArray,
+  getEnvAsNumber,
+  getPrefixEnv,
+} from '../../src/env.js'
 
-// const dbg = debug(import.meta.url)
+const dbg = debug(import.meta.url)
 
 test('string', (t) => {
   const val = getEnv({name: 'HOME'})
@@ -73,4 +79,12 @@ test('number', (t) => {
 test('num-nan', (t) => {
   const error = t.throws(() => getEnvAsNumber({name: 'HOME'}))
   t.truthy(error)
+})
+
+test('get-prefix-env', (t) => {
+  // eslint-disable-next-line dot-notation
+  process.env['configr_foo_bar'] = 'baz'
+  const env = getPrefixEnv()
+  dbg('env=%o', env)
+  t.deepEqual(env, {foo: {bar: 'baz'}})
 })
