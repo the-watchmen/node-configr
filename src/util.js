@@ -14,7 +14,6 @@ export {
   getObjectFromSource,
   decomposeSource,
   getModifiedSources,
-  getEnv,
   getRelativeToCwd,
 }
 
@@ -150,23 +149,4 @@ function getModifiedSources({source, modifiers}) {
     source,
     ..._.map(modifiers, (modifier) => `${decomp.dir}/${decomp.name}.${modifier}.${decomp.ext}`),
   ]
-}
-
-function getEnv({prefix = 'configr_', separator = '_'} = {}) {
-  return _.reduce(
-    _.entries(process.env),
-    (memo, [key, val]) => {
-      if (key.startsWith(prefix)) {
-        // dbg('get-env: env=%s', key)
-        let _key = key.slice(prefix.length)
-        const toks = _key.split(separator)
-        _key = toks.join('.')
-        dbg('get-env: found env=%s, setting _key=%s', key, _key)
-        _.set(memo, _key, val)
-      }
-
-      return memo
-    },
-    {},
-  )
 }

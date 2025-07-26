@@ -1,7 +1,8 @@
+import _ from 'lodash'
 import debug from '@watchmen/debug'
 import {parseBoolean} from '@watchmen/helpr'
 
-export {getEnv, getEnvAsBoolean, getEnvAsArray, getEnvAsNumber}
+export {getEnv, getEnvAsBoolean, getEnvAsArray, getEnvAsNumber, getPrefixEnv}
 
 const dbg = debug(import.meta.url)
 
@@ -43,4 +44,23 @@ function getEnvAsNumber({name, dflt}) {
   }
 
   return _value
+}
+
+function getPrefixEnv({prefix = 'configr_', separator = '_'} = {}) {
+  return _.reduce(
+    _.entries(process.env),
+    (memo, [key, val]) => {
+      if (key.startsWith(prefix)) {
+        // dbg('get-env: env=%s', key)
+        let _key = key.slice(prefix.length)
+        const toks = _key.split(separator)
+        _key = toks.join('.')
+        dbg('get-env: found env=%s, setting _key=%s', key, _key)
+        _.set(memo, _key, val)
+      }
+
+      return memo
+    },
+    {},
+  )
 }
