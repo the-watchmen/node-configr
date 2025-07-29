@@ -1,6 +1,7 @@
 import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
+import _ from 'lodash'
 import {Source} from '../../src/source.js'
 
 const dbg = debug(import.meta.url)
@@ -34,4 +35,26 @@ test('http-mods', async (t) => {
   })
   dbg('config=%s', pretty(src.config))
   t.pass()
+})
+
+test('must-exist-false', async (t) => {
+  const src = await Source.create({
+    source: 'nope/nope.yaml',
+    modifiers: ['dev'],
+    mustExist: false,
+  })
+  dbg('config=%s', pretty(src.config))
+  t.true(_.isEmpty(src.config))
+})
+
+test('must-exist-true', async (t) => {
+  const error = await t.throwsAsync(async () => {
+    await Source.create({
+      source: 'nope/nope.yaml',
+      modifiers: ['dev'],
+      mustExist: true,
+    })
+  })
+
+  t.truthy(error)
 })
