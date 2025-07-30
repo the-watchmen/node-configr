@@ -58,3 +58,14 @@ test('must-exist-true', async (t) => {
 
   t.truthy(error)
 })
+
+test('module', async (t) => {
+  const source = await Source.create({
+    source: '../test/ava/_get-config-1.js',
+    modifiers: ['dev'],
+    isModule: true,
+  })
+  const {config} = source
+  dbg('config=%s', pretty(config))
+  t.deepEqual(config, {configKeyOne: 'configValOne'})
+})
