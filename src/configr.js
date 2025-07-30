@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import debug from '@watchmen/debug'
-import {pretty} from '@watchmen/helpr'
 import config from 'config'
 import {Source} from './source.js'
 import {getPrefixEnv, getEnv} from './env.js'
+import {invoke} from './util.js'
 
 const dbg = debug(import.meta.url)
 
@@ -16,12 +16,8 @@ export class Configr {
 
     const _import = getEnv({name: 'CONFIGR_SOURCES_IMPORT', dflt: null})
     if (_import) {
-      dbg('create: source-getter import=%s specified, importing...', _import)
-      const module = await import(_import)
-      dbg('create: import=%s imported, invoking...', _import)
-      const importSources = await module.default()
-      dbg('create: source-getter invoked, obtained sources=%s', pretty(importSources))
-      _sources = [..._sources, ...importSources]
+      const imported = await invoke({module: _import})
+      _sources = [..._sources, ...imported]
     }
 
     if (!_.isEmpty(_sources)) dbg('create: sources from env=%o', _sources)
@@ -59,5 +55,11 @@ export class Configr {
 
   get sources() {
     return this.#sources
+  }
+
+  async addSource(source) {
+    const _source = await Source.create(source)
+    this.#config = _.merge(this.config, _source.config)
+    this.sources.push(source)
   }
 }

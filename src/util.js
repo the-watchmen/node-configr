@@ -4,6 +4,7 @@ import _ from 'lodash'
 import fs from 'fs-extra'
 import {parse} from 'yaml'
 import debug from '@watchmen/debug'
+import {pretty} from '@watchmen/helpr'
 
 export {
   getRelativePath,
@@ -15,6 +16,7 @@ export {
   decomposeSource,
   getModifiedSources,
   getRelativeToCwd,
+  invoke,
 }
 
 const format = {
@@ -149,4 +151,13 @@ function getModifiedSources({source, modifiers}) {
     source,
     ..._.map(modifiers, (modifier) => `${decomp.dir}/${decomp.name}.${modifier}.${decomp.ext}`),
   ]
+}
+
+async function invoke({module, args}) {
+  dbg('invoke: importing module=%s...', module)
+  const _module = await import(module)
+  dbg('invoke: module=%s imported, invoking...', module)
+  const data = await _module.default(args)
+  dbg('invoke: default function invoked, obtained data=%s', pretty(data))
+  return data
 }

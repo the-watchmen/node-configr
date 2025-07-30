@@ -7,6 +7,7 @@ import {
   decomposeSource,
   getModifiedSources,
   getExtFromSource,
+  invoke,
 } from '../../src/util.js'
 
 const dbg = debug(import.meta.url)
@@ -133,4 +134,11 @@ test('get-ext-file', (t) => {
   const source = 'path/to/values.yaml'
   const ext = getExtFromSource({source})
   t.is(ext, 'yaml')
+})
+
+test('invoke', async (t) => {
+  const data = await invoke({module: '../test/ava/_get-config-1.js'})
+  t.deepEqual(data, {
+    configKeyOne: 'configValOne',
+  })
 })

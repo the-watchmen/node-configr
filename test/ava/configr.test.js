@@ -1,7 +1,7 @@
 import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
-import {Configr, getConfig, getConfigValue} from '../../src/index.js'
+import {Configr, getConfig, getConfigr, getConfigValue} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
 const caller = import.meta.url
@@ -137,4 +137,74 @@ test('get-import', async (t) => {
     dynamic: 'yep',
   })
   delete process.env.CONFIGR_SOURCES_IMPORT
+})
+
+test('add', async (t) => {
+  const configr = await Configr.create({
+    sources: [{source: '../test/ava/_get-config-1.js', isModule: true}],
+  })
+
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+    configKeyOne: 'configValOne',
+  })
+
+  await configr.addSource({source: '../test/ava/_get-config-2.js', isModule: true})
+
+  dbg('config(post-add)=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+    configKeyOne: 'configValOne',
+    configKeyTwo: 'configValTwo',
+  })
+})
+
+test('get-configr', async (t) => {
+  const configr = await getConfigr({bustCache: true})
+
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+  })
+
+  await configr.addSource({source: '../test/ava/_get-config-1.js', isModule: true})
+  dbg('config-post-add-1=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+    configKeyOne: 'configValOne',
+  })
+
+  await configr.addSource({source: '../test/ava/_get-config-2.js', isModule: true})
+  dbg('config-post-add-2=%s', pretty(configr.config))
+  t.deepEqual(configr.config, {
+    a: {
+      b: {
+        c: 123,
+      },
+    },
+    isTrue: true,
+    configKeyOne: 'configValOne',
+    configKeyTwo: 'configValTwo',
+  })
 })
