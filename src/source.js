@@ -1,13 +1,12 @@
 import _ from 'lodash'
 import debug from '@watchmen/debug'
-import {parseBoolean} from '@watchmen/helpr'
+import {parseBoolean, pretty} from '@watchmen/helpr'
 import {getModifiedSources, getObjectFromSource, invoke} from '../src/util.js'
 
 const dbg = debug(import.meta.url)
 
 export class Source {
-  #source
-  #modifiers
+  #args
   #config
 
   static async create({source, modifiers = [], headers, mustExist, isModule}) {
@@ -38,12 +37,11 @@ export class Source {
     }
 
     dbg('create: source=%o, config=%o', source, config)
-    return new Source({source, modifiers, config})
+    return new Source({args: arguments[0], config})
   }
 
-  constructor({source, modifiers, config}) {
-    this.#source = source
-    this.#modifiers = modifiers
+  constructor({args, config}) {
+    this.#args = args
     this.#config = config
   }
 
@@ -51,11 +49,11 @@ export class Source {
     return this.#config
   }
 
-  get source() {
-    return this.#source
+  get args() {
+    return this.#args
   }
 
-  get modifiers() {
-    return this.#modifiers
+  toString() {
+    return pretty(this.args)
   }
 }

@@ -7,9 +7,12 @@ import {Source} from '../../src/source.js'
 const dbg = debug(import.meta.url)
 
 test('basic', async (t) => {
-  const src = await Source.create({source: 'test/ava/configr.yaml'})
+  const source = 'test/ava/configr.yaml'
+  const src = await Source.create({source})
   dbg('config=%s', pretty(src.config))
   t.deepEqual(src.config, {base: {foo: 'bar'}})
+  dbg('src.args=%s', pretty(src.args))
+  t.deepEqual(src.args, {source})
 })
 
 test('mods', async (t) => {

@@ -11,49 +11,6 @@ const dbg = debug(import.meta.url)
 let configr
 let promise
 
-// async function getConfig({caller, bustCache, sources} = {}) {
-//   let path
-//   if (caller) {
-//     path = getRelativeToCwd(caller)
-//   }
-
-//   const areSources = !_.isEmpty(sources)
-//   if (areSources) {
-//     dbg('get-config: sources provided, implicitly busting cache')
-//     bustCache = true
-//   }
-
-//   if (configr && !bustCache) {
-//     if (path) dbg('cache-hit: caller=%s', path)
-//     return configr.config
-//   }
-
-//   if (promise && !bustCache) {
-//     if (path) dbg('promise: caller=%s', path)
-//     return promise
-//   }
-
-//   promise = (async () => {
-//     if (path) dbg('creating: caller=%s', path)
-//     if (bustCache) dbg('busting-cache per request')
-
-//     if (configr && areSources) {
-//       for (const source of sources) {
-//         // single-thread these to avoid race condition
-//         //
-//         // eslint-disable-next-line no-await-in-loop
-//         await configr.addSource(source)
-//       }
-//     } else {
-//       configr = await Configr.create({sources})
-//     }
-
-//     return configr.config
-//   })()
-
-//   return promise
-// }
-
 async function getConfig({caller, bustCache} = {}) {
   const configr = await getConfigr({caller, bustCache})
   return configr.config

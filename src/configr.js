@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import debug from '@watchmen/debug'
 import config from 'config'
+import {pretty} from '@watchmen/helpr'
 import {Source} from './source.js'
 import {getPrefixEnv, getEnv} from './env.js'
 import {invoke} from './util.js'
@@ -21,6 +22,7 @@ export class Configr {
     }
 
     if (!_.isEmpty(_sources)) dbg('create: sources from env=%o', _sources)
+
     sources = await Promise.all(
       _.map([..._sources, ...sources], (source) => {
         return Source.create(_.isString(source) ? {source} : source)
@@ -57,9 +59,17 @@ export class Configr {
     return this.#sources
   }
 
+  toString() {
+    return pretty(
+      _.map(this.sources, (val) => {
+        return val.args
+      }),
+    )
+  }
+
   async addSource(source) {
     const _source = await Source.create(source)
     this.#config = _.merge(this.config, _source.config)
-    this.sources.push(source)
+    this.sources.push(_source)
   }
 }

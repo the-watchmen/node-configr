@@ -1,6 +1,7 @@
 import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
+import _ from 'lodash'
 import {Configr, getConfig, getConfigr, getConfigValue} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
@@ -17,6 +18,8 @@ test('bare', async (t) => {
     },
     isTrue: true,
   })
+
+  dbg('to-string=%s', configr.toString())
 })
 
 test('basic', async (t) => {
@@ -36,6 +39,7 @@ test('basic', async (t) => {
     base: {foo: 'bar', https: true},
     extra: {aList: ['foo', 'bar'], aBoolean: true, anObject: {foo: 'foo', bar: 'bar'}, aNumber: 42},
   })
+  dbg('to-string=%s', configr.toString())
 })
 
 test('env', async (t) => {
@@ -136,6 +140,7 @@ test('get-import', async (t) => {
     isTrue: true,
     dynamic: 'yep',
   })
+
   delete process.env.CONFIGR_SOURCES_IMPORT
 })
 
