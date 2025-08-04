@@ -11,6 +11,8 @@ const dbg = debug(import.meta.url)
 export class Configr {
   #sources
   #config
+  #jsonConfig
+  #envConfig
 
   static async create({sources = []} = {}) {
     let _sources = JSON.parse(getEnv({name: 'CONFIGR_SOURCES_JSON', dflt: '[]'}))
@@ -25,7 +27,7 @@ export class Configr {
 
     sources = await Promise.all(
       _.map([..._sources, ...sources], (source) => {
-        return Source.create(_.isString(source) ? {source} : source)
+        return Source.create(_.isString(source) ? {location: source} : source)
       }),
     )
     return new Configr({sources})
@@ -33,22 +35,27 @@ export class Configr {
 
   constructor({sources}) {
     this.#sources = sources
-    this.#config = _.reduce(
-      this.#sources,
-      (memo, source) => {
-        dbg('ctor: reduce: source=%o, memo=%o', source.source, memo)
-        _.merge(memo, source.config)
-        return memo
-      },
-      config.util.toObject(config),
-    )
-
-    const _config = JSON.parse(getEnv({name: 'CONFIGR_CONFIG_JSON', dflt: '{}'}))
-    if (!_.isEmpty(_config)) {
-      dbg('ctor: obtained config=%o from configr-config-json', _config)
+    const jsonConfig = JSON.parse(getEnv({name: 'CONFIGR_CONFIG_JSON', dflt: '{}'}))
+    if (!_.isEmpty(jsonConfig)) {
+      dbg('ctor: obtained config=%o from configr-config-json', jsonConfig)
     }
 
-    this.#config = _.merge(this.#config, {..._config, ...getPrefixEnv()})
+    this.#jsonConfig = jsonConfig
+    this.#envConfig = getPrefixEnv()
+    this.#config = this.#reduce()
+  }
+
+  #reduce() {
+    const configs = _.map(this.sources, (source) => source.config)
+    configs.push(config.util.toObject(config), this.#jsonConfig, this.#envConfig)
+    return _.reduce(
+      configs,
+      (memo, _config) => {
+        _.merge(memo, _config)
+        return memo
+      },
+      {},
+    )
   }
 
   get config() {
@@ -67,9 +74,34 @@ export class Configr {
     )
   }
 
+  getSource(location) {
+    return _.find(this.sources, (source) => {
+      return source.location === location
+    })
+  }
+
   async addSource(source) {
-    const _source = await Source.create(source)
+    let _source = this.getSource(source.location)
+    if (_source) {
+      throw new Error('source with location=%s already exists', _source.toString())
+    }
+
+    _source = await Source.create(source)
     this.#config = _.merge(this.config, _source.config)
     this.sources.push(_source)
+  }
+
+  async refreshSource(location) {
+    const sources = this.sources
+    const idx = _.findIndex(sources, (source) => {
+      return source.location === location
+    })
+    if (idx === -1) {
+      throw new Error(`unable to refresh source with location=${location}, does not exist`)
+    } else {
+      dbg('refresh: located source=%s, refreshing...', location)
+      sources[idx] = await Source.create(sources[idx].args)
+      this.#config = this.#reduce()
+    }
   }
 }

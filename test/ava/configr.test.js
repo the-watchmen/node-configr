@@ -2,7 +2,10 @@ import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
 import _ from 'lodash'
-import {Configr, getConfig, getConfigr, getConfigValue} from '../../src/index.js'
+import fs from 'fs-extra'
+import config from 'config'
+import {stringify} from 'yaml'
+import {Configr, getConfig, getConfigValue} from '../../src/index.js'
 
 const dbg = debug(import.meta.url)
 const caller = import.meta.url
@@ -25,11 +28,11 @@ test('bare', async (t) => {
 test('basic', async (t) => {
   const sources = [
     {
-      source:
+      location:
         'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.https.yaml',
       token: 's3cret',
     },
-    {source: 'test/ava/configr.yaml', modifiers: ['test']},
+    {location: 'test/ava/configr.yaml', modifiers: ['test']},
   ]
   const configr = await Configr.create({sources})
   dbg('config=%s', pretty(configr.config))
@@ -45,7 +48,7 @@ test('basic', async (t) => {
 test('env', async (t) => {
   process.env.CONFIGR_SOURCES_JSON = JSON.stringify([
     'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.https.yaml',
-    {source: 'test/ava/configr.yaml', modifiers: ['test']},
+    {location: 'test/ava/configr.yaml', modifiers: ['test']},
   ])
   const configr = await Configr.create()
   dbg('config=%s', pretty(configr.config))
@@ -146,7 +149,7 @@ test('get-import', async (t) => {
 
 test('add', async (t) => {
   const configr = await Configr.create({
-    sources: [{source: '../test/ava/_get-config-1.js', isModule: true}],
+    sources: [{location: '../test/ava/_get-config-1.js', isModule: true}],
   })
 
   dbg('config=%s', pretty(configr.config))
@@ -160,7 +163,7 @@ test('add', async (t) => {
     configKeyOne: 'configValOne',
   })
 
-  await configr.addSource({source: '../test/ava/_get-config-2.js', isModule: true})
+  await configr.addSource({location: '../test/ava/_get-config-2.js', isModule: true})
 
   dbg('config(post-add)=%s', pretty(configr.config))
   t.deepEqual(configr.config, {
@@ -175,41 +178,34 @@ test('add', async (t) => {
   })
 })
 
-test('get-configr', async (t) => {
-  const configr = await getConfigr({bustCache: true})
+test('refresh', async (t) => {
+  const root = '/tmp/configr'
+  await fs.emptyDir(root)
+  const first = `${root}/first.yaml`
+  const second = `${root}/second.yaml`
+  const third = `${root}/third.yaml`
+  const dflt = config.util.toObject(config)
+  const _first = {first: 'yep'}
+  await fs.writeFile(first, stringify(_first))
+  const _third = {third: 'yes'}
+  await fs.writeFile(third, stringify(_third))
+
+  const configr = await Configr.create({
+    sources: [{location: first}, {location: second, mustExist: false}, {location: third}],
+  })
 
   dbg('config=%s', pretty(configr.config))
-  t.deepEqual(configr.config, {
-    a: {
-      b: {
-        c: 123,
-      },
-    },
-    isTrue: true,
-  })
 
-  await configr.addSource({source: '../test/ava/_get-config-1.js', isModule: true})
-  dbg('config-post-add-1=%s', pretty(configr.config))
-  t.deepEqual(configr.config, {
-    a: {
-      b: {
-        c: 123,
-      },
-    },
-    isTrue: true,
-    configKeyOne: 'configValOne',
-  })
+  dbg('sources=%s', configr.toString())
 
-  await configr.addSource({source: '../test/ava/_get-config-2.js', isModule: true})
-  dbg('config-post-add-2=%s', pretty(configr.config))
-  t.deepEqual(configr.config, {
-    a: {
-      b: {
-        c: 123,
-      },
-    },
-    isTrue: true,
-    configKeyOne: 'configValOne',
-    configKeyTwo: 'configValTwo',
-  })
+  let expected = _.merge(_first, _third, dflt)
+  t.deepEqual(configr.config, expected)
+
+  const _second = {second: 'ya'}
+  await fs.writeFile(second, stringify(_second))
+
+  await configr.refreshSource(second)
+  dbg('config-refreshed=%s', pretty(configr.config))
+  expected = _.merge(expected, _second)
+  t.deepEqual(configr.config, expected)
 })

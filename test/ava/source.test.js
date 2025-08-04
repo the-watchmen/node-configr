@@ -7,23 +7,23 @@ import {Source} from '../../src/source.js'
 const dbg = debug(import.meta.url)
 
 test('basic', async (t) => {
-  const source = 'test/ava/configr.yaml'
-  const src = await Source.create({source})
+  const location = 'test/ava/configr.yaml'
+  const src = await Source.create({location})
   dbg('config=%s', pretty(src.config))
   t.deepEqual(src.config, {base: {foo: 'bar'}})
   dbg('src.args=%s', pretty(src.args))
-  t.deepEqual(src.args, {source})
+  t.deepEqual(src.args, {location})
 })
 
 test('mods', async (t) => {
-  const src = await Source.create({source: 'test/ava/configr.yaml', modifiers: ['dev', 'thing']})
+  const src = await Source.create({location: 'test/ava/configr.yaml', modifiers: ['dev', 'thing']})
   dbg('config=%s', pretty(src.config))
   t.deepEqual(src.config, {base: {foo: 'bar', baz: 'bip'}})
 })
 
 test('http', async (t) => {
   const src = await Source.create({
-    source:
+    location:
       'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.yaml',
   })
   dbg('config=%s', pretty(src.config))
@@ -32,7 +32,7 @@ test('http', async (t) => {
 
 test('http-mods', async (t) => {
   const src = await Source.create({
-    source:
+    location:
       'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.yaml',
     modifiers: ['dev', 'thing'],
   })
@@ -42,7 +42,7 @@ test('http-mods', async (t) => {
 
 test('must-exist-false', async (t) => {
   const src = await Source.create({
-    source: 'nope/nope.yaml',
+    location: 'nope/nope.yaml',
     modifiers: ['dev'],
     mustExist: false,
   })
@@ -53,7 +53,7 @@ test('must-exist-false', async (t) => {
 test('must-exist-true', async (t) => {
   const error = await t.throwsAsync(async () => {
     await Source.create({
-      source: 'nope/nope.yaml',
+      location: 'nope/nope.yaml',
       modifiers: ['dev'],
       mustExist: true,
     })
@@ -64,7 +64,7 @@ test('must-exist-true', async (t) => {
 
 test('module', async (t) => {
   const source = await Source.create({
-    source: '../test/ava/_get-config-1.js',
+    location: '../test/ava/_get-config-1.js',
     modifiers: ['dev'],
     isModule: true,
   })

@@ -9,12 +9,12 @@ import {pretty} from '@watchmen/helpr'
 export {
   getRelativePath,
   isInParent,
-  getDataFromSource,
+  getDataFromLocation,
   getObjectFromData,
-  getExtFromSource,
-  getObjectFromSource,
-  decomposeSource,
-  getModifiedSources,
+  getExtFromLocation,
+  getObjectFromLocation,
+  decomposeLocation,
+  getModifiedLocations,
   getRelativeToCwd,
   invoke,
 }
@@ -50,18 +50,6 @@ function isInParent({file, dir}) {
 function getRelativeToCwd(url) {
   return path.relative(process.cwd(), fileURLToPath(url))
 }
-
-// function getHeaders({url}) {
-//   const host = new URL(url).host
-//   const tokenEnv = _.get(config, `configr.hosts.${host}.tokenEnv`)
-//   const token = process.env[tokenEnv]
-//   const headers = {}
-//   if (token) {
-//     headers.Authorization = `Bearer ${token}`
-//   }
-
-//   return headers
-// }
 
 async function getHttpData({url, headers, mustExist}) {
   // eg: url = `https://raw.${host}/${owner}/${repo}/${branch}/${path}`
@@ -102,18 +90,18 @@ async function getFileData({path, mustExist}) {
   }
 }
 
-async function getDataFromSource({source, headers, mustExist}) {
-  return source.startsWith('https://')
-    ? getHttpData({url: source, headers, mustExist})
-    : getFileData({path: source, mustExist})
+async function getDataFromLocation({location, headers, mustExist}) {
+  return location.startsWith('https://')
+    ? getHttpData({url: location, headers, mustExist})
+    : getFileData({path: location, mustExist})
 }
 
-async function getObjectFromSource({source, headers, mustExist}) {
-  const data = await getDataFromSource({source, headers, mustExist})
+async function getObjectFromLocation({location, headers, mustExist}) {
+  const data = await getDataFromLocation({location, headers, mustExist})
   if (data) {
-    // dbg('get-object-from-source: source=%s found, processing...', source)
+    // dbg('get-object-from-location: location=%s found, processing...', source)
 
-    const ext = getExtFromSource({source})
+    const ext = getExtFromLocation({location})
     return getObjectFromData({data, type: ext})
   }
 }
@@ -131,24 +119,24 @@ function getObjectFromData({data, type}) {
   return o
 }
 
-function getExtFromSource({source}) {
-  return source.split('.').pop().toLowerCase()
+function getExtFromLocation({location}) {
+  return location.split('.').pop().toLowerCase()
 }
 
-function decomposeSource({source}) {
-  const file = path.basename(source)
+function decomposeLocation({location}) {
+  const file = path.basename(location)
   let ext = path.extname(file)
   const name = path.basename(file, ext)
   ext = ext.slice(1)
-  const dir = path.dirname(source)
+  const dir = path.dirname(location)
   return {dir, name, ext}
 }
 
-function getModifiedSources({source, modifiers}) {
-  const decomp = decomposeSource({source})
+function getModifiedLocations({location, modifiers}) {
+  const decomp = decomposeLocation({location})
 
   return [
-    source,
+    location,
     ..._.map(modifiers, (modifier) => `${decomp.dir}/${decomp.name}.${modifier}.${decomp.ext}`),
   ]
 }
