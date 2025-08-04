@@ -3,10 +3,10 @@ import debug from '@watchmen/debug'
 import {
   isInParent,
   getObjectFromData,
-  getObjectFromSource,
-  decomposeSource,
-  getModifiedSources,
-  getExtFromSource,
+  getObjectFromLocation,
+  decomposeLocation,
+  getModifiedLocations,
+  getExtFromLocation,
   invoke,
 } from '../../src/util.js'
 
@@ -43,17 +43,17 @@ test('github', async (t) => {
   const repo = 'node-configr'
   const branch = 'main'
   const path = 'test/ava/configr.test.yaml'
-  const data = await getObjectFromSource({
-    source: `https://raw.${host}/${owner}/${repo}/${branch}/${path}`,
+  const data = await getObjectFromLocation({
+    location: `https://raw.${host}/${owner}/${repo}/${branch}/${path}`,
   })
   dbg('data=%o', data)
   t.is(data.extra.aNumber, 42)
 })
 
 test('path', async (t) => {
-  const source = 'test/ava/configr.test.yaml'
-  const data = await getObjectFromSource({
-    source,
+  const location = 'test/ava/configr.test.yaml'
+  const data = await getObjectFromLocation({
+    location,
   })
   dbg('data=%o', data)
   t.is(data.extra.aNumber, 42)
@@ -90,8 +90,8 @@ test('gofd-nope', (t) => {
 })
 
 test('decomp', (t) => {
-  const source = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
-  const res = decomposeSource({source})
+  const location = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
+  const res = decomposeLocation({location})
   t.is(res.dir, 'https://github.com/owner-1/repo-1/path/to')
   t.is(res.name, 'values')
   t.is(res.ext, 'yaml')
@@ -99,8 +99,8 @@ test('decomp', (t) => {
 })
 
 test('decomp-path', (t) => {
-  const source = 'path/to/values.yaml'
-  const res = decomposeSource({source})
+  const location = 'path/to/values.yaml'
+  const res = decomposeLocation({location})
   t.is(res.dir, 'path/to')
   t.is(res.name, 'values')
   t.is(res.ext, 'yaml')
@@ -108,9 +108,9 @@ test('decomp-path', (t) => {
 })
 
 test('get-modified-url', (t) => {
-  const source = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
+  const location = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
   const modifiers = ['dev', 'us']
-  const res = getModifiedSources({source, modifiers})
+  const res = getModifiedLocations({location, modifiers})
   t.deepEqual(res, [
     'https://github.com/owner-1/repo-1/path/to/values.yaml',
     'https://github.com/owner-1/repo-1/path/to/values.dev.yaml',
@@ -119,20 +119,20 @@ test('get-modified-url', (t) => {
 })
 
 test('get-modified-none', (t) => {
-  const source = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
-  const res = getModifiedSources({source})
+  const location = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
+  const res = getModifiedLocations({location})
   t.deepEqual(res, ['https://github.com/owner-1/repo-1/path/to/values.yaml'])
 })
 
 test('get-ext-url', (t) => {
-  const source = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
-  const ext = getExtFromSource({source})
+  const location = 'https://github.com/owner-1/repo-1/path/to/values.yaml'
+  const ext = getExtFromLocation({location})
   t.is(ext, 'yaml')
 })
 
 test('get-ext-file', (t) => {
-  const source = 'path/to/values.yaml'
-  const ext = getExtFromSource({source})
+  const location = 'path/to/values.yaml'
+  const ext = getExtFromLocation({location})
   t.is(ext, 'yaml')
 })
 

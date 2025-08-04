@@ -4,5 +4,5 @@ const dbg = debug(import.meta.url)
 
 export default async function getSources() {
   dbg('invoking...')
-  return [{source: 'test/ava/configr.dyna.yaml'}]
+  return [{location: 'test/ava/configr.dyna.yaml'}]
 }
