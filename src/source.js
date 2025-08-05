@@ -1,3 +1,4 @@
+import assert from 'node:assert'
 import _ from 'lodash'
 import debug from '@watchmen/debug'
 import {parseBoolean, pretty} from '@watchmen/helpr'
@@ -7,6 +8,7 @@ const dbg = debug(import.meta.url)
 
 export class Source {
   #args
+  #name
   #config
 
   static async create({location, modifiers = [], headers, mustExist, isModule}) {
@@ -41,7 +43,9 @@ export class Source {
   }
 
   constructor({args, config}) {
+    assert.ok(args.location, `location required, not provided in args=${pretty(args)}`)
     this.#args = args
+    this.#name = args.name ?? args.location
     this.#config = config
   }
 
@@ -53,8 +57,8 @@ export class Source {
     return this.#args
   }
 
-  get location() {
-    return this.#args.location
+  get name() {
+    return this.#name
   }
 
   toString() {

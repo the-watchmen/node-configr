@@ -74,32 +74,31 @@ export class Configr {
     )
   }
 
-  getSource(location) {
+  getSource(name) {
     return _.find(this.sources, (source) => {
-      return source.location === location
+      return source.name === name
     })
   }
 
-  async addSource(source) {
-    let _source = this.getSource(source.location)
+  addSource(source) {
+    const _source = this.getSource(source.name)
     if (_source) {
-      throw new Error('source with location=%s already exists', _source.toString())
+      throw new Error(`source=${_source.toString()} already exists`)
     }
 
-    _source = await Source.create(source)
-    this.#config = _.merge(this.config, _source.config)
-    this.sources.push(_source)
+    this.#config = _.merge(this.config, source.config)
+    this.sources.push(source)
   }
 
-  async refreshSource(location) {
+  async refreshSource(name) {
     const sources = this.sources
     const idx = _.findIndex(sources, (source) => {
-      return source.location === location
+      return source.name === name
     })
     if (idx === -1) {
-      throw new Error(`unable to refresh source with location=${location}, does not exist`)
+      throw new Error(`unable to refresh source with name=${name}, does not exist`)
     } else {
-      dbg('refresh: located source=%s, refreshing...', location)
+      dbg('refresh: located source=%s, refreshing...', name)
       sources[idx] = await Source.create(sources[idx].args)
       this.#config = this.#reduce()
     }
