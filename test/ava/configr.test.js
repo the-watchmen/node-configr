@@ -6,6 +6,7 @@ import fs from 'fs-extra'
 import config from 'config'
 import {stringify} from 'yaml'
 import {Configr, getConfig, getConfigValue} from '../../src/index.js'
+import {Source} from '../../src/source.js'
 
 const dbg = debug(import.meta.url)
 const caller = import.meta.url
@@ -163,7 +164,8 @@ test('add', async (t) => {
     configKeyOne: 'configValOne',
   })
 
-  await configr.addSource({location: '../test/ava/_get-config-2.js', isModule: true})
+  const source = await Source.create({location: '../test/ava/_get-config-2.js', isModule: true})
+  configr.addSource(source)
 
   dbg('config(post-add)=%s', pretty(configr.config))
   t.deepEqual(configr.config, {
@@ -190,8 +192,9 @@ test('refresh', async (t) => {
   const _third = {third: 'yes'}
   await fs.writeFile(third, stringify(_third))
 
+  const name = 'second'
   const configr = await Configr.create({
-    sources: [{location: first}, {location: second, mustExist: false}, {location: third}],
+    sources: [{location: first}, {name, location: second, mustExist: false}, {location: third}],
   })
 
   dbg('config=%s', pretty(configr.config))
@@ -204,7 +207,7 @@ test('refresh', async (t) => {
   const _second = {second: 'ya'}
   await fs.writeFile(second, stringify(_second))
 
-  await configr.refreshSource(second)
+  await configr.refreshSource(name)
   dbg('config-refreshed=%s', pretty(configr.config))
   expected = _.merge(expected, _second)
   t.deepEqual(configr.config, expected)
