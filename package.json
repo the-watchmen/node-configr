@@ -4,7 +4,8 @@
   "description": "config helper",
   "exports": {
     ".": "./src/index.js",
-    "./env": "./src/env.js"
+    "./env": "./src/env.js",
+    "./source": "./src/source.js"
   },
   "repository": "the-watchmen/node-configr",
   "type": "module",
