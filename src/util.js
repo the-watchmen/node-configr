@@ -17,6 +17,8 @@ export {
   getModifiedLocations,
   getRelativeToCwd,
   invoke,
+  getFileData,
+  getHttpData,
 }
 
 const format = {
