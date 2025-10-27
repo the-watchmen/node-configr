@@ -14,5 +14,6 @@ module.exports = {
     'unicorn/prefer-number-properties': 0,
     'no-unused-expressions': ['error', {allowShortCircuit: true}],
     'guard-for-in': 0,
+    camelcase: 0,
   },
 }

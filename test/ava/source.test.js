@@ -2,13 +2,13 @@ import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
 import _ from 'lodash'
-import {Source} from '../../src/source.js'
+import {FileSource, HttpSource, ModuleSource, EnvSource, JsonSource} from '../../src/source.js'
 
 const dbg = debug(import.meta.url)
 
-test('basic', async (t) => {
+test('file', async (t) => {
   const location = 'test/ava/configr.yaml'
-  const src = await Source.create({location})
+  const src = await FileSource.create({location})
   dbg('config=%s', pretty(src.config))
   t.deepEqual(src.config, {base: {foo: 'bar'}})
   dbg('src.args=%s', pretty(src.args))
@@ -16,13 +16,16 @@ test('basic', async (t) => {
 })
 
 test('mods', async (t) => {
-  const src = await Source.create({location: 'test/ava/configr.yaml', modifiers: ['dev', 'thing']})
+  const src = await FileSource.create({
+    location: 'test/ava/configr.yaml',
+    modifiers: ['dev', 'thing'],
+  })
   dbg('config=%s', pretty(src.config))
   t.deepEqual(src.config, {base: {foo: 'bar', baz: 'bip'}})
 })
 
 test('http', async (t) => {
-  const src = await Source.create({
+  const src = await HttpSource.create({
     location:
       'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.yaml',
   })
@@ -31,7 +34,7 @@ test('http', async (t) => {
 })
 
 test('http-mods', async (t) => {
-  const src = await Source.create({
+  const src = await HttpSource.create({
     location:
       'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.yaml',
     modifiers: ['dev', 'thing'],
@@ -41,7 +44,7 @@ test('http-mods', async (t) => {
 })
 
 test('must-exist-false', async (t) => {
-  const src = await Source.create({
+  const src = await FileSource.create({
     location: 'nope/nope.yaml',
     modifiers: ['dev'],
     mustExist: false,
@@ -52,7 +55,7 @@ test('must-exist-false', async (t) => {
 
 test('must-exist-true', async (t) => {
   const error = await t.throwsAsync(async () => {
-    await Source.create({
+    await FileSource.create({
       location: 'nope/nope.yaml',
       modifiers: ['dev'],
       mustExist: true,
@@ -63,7 +66,7 @@ test('must-exist-true', async (t) => {
 })
 
 test('module', async (t) => {
-  const source = await Source.create({
+  const source = await ModuleSource.create({
     location: '../test/ava/_get-config-1.js',
     modifiers: ['dev'],
     isModule: true,
@@ -71,4 +74,24 @@ test('module', async (t) => {
   const {config} = source
   dbg('config=%s', pretty(config))
   t.deepEqual(config, {configKeyOne: 'configValOne'})
+})
+
+test('env', (t) => {
+  const foo = 'bar'
+  process.env.configr_foo = foo
+  const source = EnvSource.create({})
+  const {config} = source
+  dbg('config=%s', pretty(config))
+  t.deepEqual(config, {foo})
+  delete process.env.configr_foo
+})
+
+test('json', (t) => {
+  const foo = 'bar'
+  process.env.CONFIGR_CONFIG_JSON = '{"foo": "bar"}'
+  const source = JsonSource.create({})
+  const {config} = source
+  dbg('config=%s', pretty(config))
+  t.deepEqual(config, {foo})
+  delete process.env.CONFIGR_CONFIG_JSON
 })
