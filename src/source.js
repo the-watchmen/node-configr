@@ -1,3 +1,4 @@
+import assert from 'node:assert'
 import _ from 'lodash'
 import config from 'config'
 import debug from '@watchmen/debug'
@@ -17,31 +18,30 @@ export {ConfigSource, HttpSource, FileSource, ModuleSource, EnvSource, JsonSourc
 
 class Source {
   #args
-  #config
 
-  constructor({args, config}) {
+  constructor(args) {
+    assert.ok(args.location)
     this.#args = args
-    this.#config = config
   }
 
   get config() {
-    return this.#config
+    return this.args?.config
+  }
+
+  get location() {
+    return this.args?.location
+  }
+
+  get name() {
+    return this.args?.name ?? this.location
   }
 
   get args() {
     return this.#args
   }
 
-  get location() {
-    return this.#args.location
-  }
-
-  get name() {
-    return this.#args.name ?? this.location
-  }
-
-  toString() {
-    return pretty(this.args)
+  get props() {
+    return {this: this.constructor.name, args: this.args}
   }
 }
 
@@ -49,12 +49,13 @@ class Source {
 //
 class ConfigSource extends Source {
   static create() {
-    return new ConfigSource({args: {location: 'config'}, config: config.util.toObject(config)})
+    return new ConfigSource({location: 'config', config: config.util.toObject(config)})
   }
 }
 
 class HttpSource extends Source {
-  static async create({location, headers, modifiers = [], mustExist}) {
+  static async create(args = {}) {
+    const {location, headers, modifiers = [], mustExist} = args
     const config = await getModifiedConfig({
       location,
       modifiers,
@@ -64,12 +65,13 @@ class HttpSource extends Source {
       },
     })
 
-    return new HttpSource({args: arguments[0], config})
+    return new HttpSource({...args, config})
   }
 }
 
 class FileSource extends Source {
-  static async create({location, mustExist, modifiers = []}) {
+  static async create(args = {}) {
+    const {location, mustExist, modifiers = []} = args
     const config = await getModifiedConfig({
       location,
       modifiers,
@@ -79,32 +81,35 @@ class FileSource extends Source {
       },
     })
 
-    return new FileSource({args: arguments[0], config})
+    return new FileSource({...args, config})
   }
 }
 
 class ModuleSource extends Source {
-  static async create({location, args}) {
+  static async create(args = {}) {
+    const {location} = args
     const config = await invoke({module: location, args})
-    return new ModuleSource({args: arguments[0], config})
+    return new ModuleSource({...args, config})
   }
 }
 
 class EnvSource extends Source {
-  static create({location = 'configr_'} = {}) {
+  static create(args = {}) {
+    const {location = 'configr_'} = args
     const config = getPrefixEnv({prefix: location})
-    return new EnvSource({args: arguments[0], config})
+    return new EnvSource({...args, location, config})
   }
 }
 
 class JsonSource extends Source {
-  static create({location = 'CONFIGR_CONFIG_JSON'} = {}) {
+  static create(args = {}) {
+    const {location = 'CONFIGR_CONFIG_JSON'} = args
     const config = JSON.parse(getEnv({name: location, dflt: '{}'}))
     if (!_.isEmpty(config)) {
       dbg('json-create: obtained config=%s from %s', pretty(config), location)
     }
 
-    return new JsonSource({args: arguments[0], config})
+    return new JsonSource({...args, location, config})
   }
 }
 

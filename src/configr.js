@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import debug from '@watchmen/debug'
-import {pretty} from '@watchmen/helpr'
+// import {pretty} from '@watchmen/helpr'
 import {ConfigSource} from './source.js'
 import {getEnv} from './env.js'
 import {invoke} from './util.js'
@@ -49,11 +49,9 @@ export class Configr {
   }
 
   toString() {
-    return pretty(
-      _.map(this.sources, (val) => {
-        return val.args
-      }),
-    )
+    return _.map(this.sources, (val) => {
+      return val.toString()
+    }).join('\n')
   }
 
   getSource(name) {
