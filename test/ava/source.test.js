@@ -2,7 +2,14 @@ import test from 'ava'
 import debug from '@watchmen/debug'
 import {pretty} from '@watchmen/helpr'
 import _ from 'lodash'
-import {FileSource, HttpSource, ModuleSource, EnvSource, JsonSource} from '../../src/source.js'
+import {
+  ConfigSource,
+  FileSource,
+  HttpSource,
+  ModuleSource,
+  EnvSource,
+  JsonSource,
+} from '../../src/source.js'
 
 const dbg = debug(import.meta.url)
 
@@ -12,7 +19,7 @@ test('file', async (t) => {
   dbg('config=%s', pretty(src.config))
   t.deepEqual(src.config, {base: {foo: 'bar'}})
   dbg('src.args=%s', pretty(src.args))
-  t.deepEqual(src.args, {location})
+  t.is(src.args.location, location)
 })
 
 test('mods', async (t) => {
@@ -20,17 +27,17 @@ test('mods', async (t) => {
     location: 'test/ava/configr.yaml',
     modifiers: ['dev', 'thing'],
   })
-  dbg('config=%s', pretty(src.config))
+  dbg('src=%s', pretty(src.props))
   t.deepEqual(src.config, {base: {foo: 'bar', baz: 'bip'}})
 })
 
 test('http', async (t) => {
-  const src = await HttpSource.create({
+  const source = await HttpSource.create({
     location:
       'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.yaml',
   })
-  dbg('config=%s', pretty(src.config))
-  t.pass()
+  dbg('source=%s', pretty(source.props))
+  t.is(source.props.modifiers, undefined)
 })
 
 test('http-mods', async (t) => {
@@ -39,7 +46,7 @@ test('http-mods', async (t) => {
       'https://raw.githubusercontent.com/the-watchmen/node-configr/main/test/ava/configr.yaml',
     modifiers: ['dev', 'thing'],
   })
-  dbg('config=%s', pretty(src.config))
+  dbg('src=%s', pretty(src.props))
   t.pass()
 })
 
@@ -72,7 +79,7 @@ test('module', async (t) => {
     isModule: true,
   })
   const {config} = source
-  dbg('config=%s', pretty(config))
+  dbg('src=%s', pretty(source.props))
   t.deepEqual(config, {configKeyOne: 'configValOne'})
 })
 
@@ -91,7 +98,13 @@ test('json', (t) => {
   process.env.CONFIGR_CONFIG_JSON = '{"foo": "bar"}'
   const source = JsonSource.create({})
   const {config} = source
-  dbg('config=%s', pretty(config))
+  dbg('src=%s', pretty(source.props))
   t.deepEqual(config, {foo})
   delete process.env.CONFIGR_CONFIG_JSON
+})
+
+test('config', (t) => {
+  const source = ConfigSource.create()
+  dbg('source=%s', pretty(source.props))
+  t.deepEqual(source.config, {a: {b: {c: 123}}, isTrue: true})
 })
