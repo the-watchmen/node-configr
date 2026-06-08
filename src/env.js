@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import debug from '@watchmen/debug'
-import {parseBoolean} from '@watchmen/helpr'
+import {parseBoolean, parseValue} from '@watchmen/helpr'
 
 export {getEnv, getEnvAsBoolean, getEnvAsArray, getEnvAsNumber, getPrefixEnv}
 
@@ -56,7 +56,7 @@ function getPrefixEnv({prefix = 'configr_', separator = '_'} = {}) {
         const toks = _key.split(separator)
         _key = toks.join('.')
         dbg('get-env: found env=%s, setting _key=%s', key, _key)
-        _.set(memo, _key, val)
+        _.set(memo, _key, parseValue(val))
       }
 
       return memo

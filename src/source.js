@@ -3,6 +3,7 @@ import _ from 'lodash'
 import config from 'config'
 import debug from '@watchmen/debug'
 import {parseBoolean, pretty} from '@watchmen/helpr'
+import {getPrefixEnv, getEnv} from './env.js'
 import {
   getModifiedLocations,
   invoke,
@@ -10,8 +11,7 @@ import {
   getFileData,
   getExtFromLocation,
   getObjectFromData,
-} from '../src/util.js'
-import {getPrefixEnv, getEnv} from '../src/env.js'
+} from './util.js'
 
 const dbg = debug(import.meta.url)
 export {ConfigSource, HttpSource, FileSource, ModuleSource, EnvSource, JsonSource}

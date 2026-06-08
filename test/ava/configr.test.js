@@ -134,6 +134,38 @@ test('push-env', async (t) => {
   delete process.env[env]
 })
 
+test('push-env-bool-false', async (t) => {
+  const env = 'configr_a_b_c_d'
+  const val = 'false'
+  process.env[env] = val
+  const sources = [EnvSource.create()]
+  const configr = await Configr.create({sources})
+  dbg('config=%s', pretty(configr.config))
+  t.false(configr.config.a.b.c.d)
+  delete process.env[env]
+})
+
+test('push-env-bool-true', async (t) => {
+  const env = 'configr_a_b_c_d'
+  const val = 'true'
+  process.env[env] = val
+  const sources = [EnvSource.create()]
+  const configr = await Configr.create({sources})
+  dbg('config=%s', pretty(configr.config))
+  t.true(configr.config.a.b.c.d)
+  delete process.env[env]
+})
+
+test('push-env-csv', async (t) => {
+  const env = 'configr_a_b_c_d'
+  const val = 'a,b,c'
+  process.env[env] = val
+  const sources = [EnvSource.create()]
+  const configr = await Configr.create({sources})
+  dbg('config=%s', pretty(configr.config))
+  t.deepEqual(configr.config.a.b.c.d, ['a', 'b', 'c'])
+  delete process.env[env]
+})
 // test('push-env-get', async (t) => {
 //   const env = 'configr_a_b_c_d'
 //   const val = 'ack'

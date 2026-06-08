@@ -81,6 +81,7 @@ async function getFileData({path, mustExist}) {
     // dbg('caught error=%o', error)
     if (error.code === 'ENOENT') {
       if (mustExist) {
+        // eslint-disable-next-line preserve-caught-error
         throw new Error(`path=${path} not found`)
       } else {
         dbg('get-file-data: path=%s not found, skipping...', path)
