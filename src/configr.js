@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import debug from '@watchmen/debug'
-// import {pretty} from '@watchmen/helpr'
+import {deepReplace} from '@watchmen/helpr'
 import {ConfigSource} from './source.js'
 import {getEnv} from './env.js'
 import {invoke} from './util.js'
@@ -25,7 +25,8 @@ export class Configr {
 
   constructor({sources}) {
     this.#sources = sources
-    this.#config = this.#reduce()
+    const config = this.#reduce()
+    this.#config = deepReplace({target: config, replaceMap: config})
   }
 
   #reduce() {
@@ -71,7 +72,7 @@ export class Configr {
   }
 
   async refreshSource(name) {
-    const sources = this.sources
+    const {sources} = this
     const idx = _.findIndex(sources, (source) => {
       return source.name === name
     })
